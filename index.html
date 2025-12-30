@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 技术伦理闯关系统</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f4f7f9; color: #333; padding: 10px; line-height: 1.6; margin: 0; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { text-align: center; color: #2c3e50; font-size: 22px; margin: 15px 0; }
+
+        @media (min-width: 768px) {
+            body { padding: 20px; }
+            .container { padding: 30px; }
+            h1 { font-size: 28px; }
+        }
+        
+        /* 导航菜单 */
+        .nav-menu { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+        .nav-menu button { padding: 10px 16px; border: 2px solid #3498db; background: white; color: #3498db; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 14px; min-height: 44px; }
+        .nav-menu button.active { background: #3498db; color: white; }
+        .module-nav { border-top: 1px dashed #ccc; padding-top: 15px; margin-top: 10px; }
+
+        @media (min-width: 768px) {
+            .nav-menu { gap: 10px; margin-bottom: 20px; }
+            .nav-menu button { padding: 10px 20px; font-size: 16px; }
+        }
+
+        /* 题目块 */
+        .question-block { margin-bottom: 20px; padding: 15px; border: 1px solid #edf2f7; border-radius: 8px; }
+        .q-header { margin-bottom: 12px; }
+        .q-type { display: inline-block; padding: 3px 8px; background: #3498db; color: white; border-radius: 4px; font-size: 11px; margin-right: 8px; vertical-align: middle; }
+        .q-text { font-size: 15px; font-weight: bold; vertical-align: middle; line-height: 1.5; }
+
+        /* 选项 */
+        .option-item { display: block; margin: 8px 0; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; transition: 0.2s; min-height: 44px; font-size: 14px; line-height: 1.5; }
+        .option-item:active { background: #e0f2fe; }
+        .option-item.selected { background-color: #e0f2fe !important; border-color: #3498db !important; }
+        .multi-choice label { display: block; width: 100%; cursor: pointer; }
+        .multi-choice input { margin-right: 10px; }
+
+        @media (min-width: 768px) {
+            .question-block { margin-bottom: 30px; padding: 20px; }
+            .q-header { margin-bottom: 15px; }
+            .q-type { font-size: 12px; }
+            .q-text { font-size: 18px; }
+            .option-item { margin: 10px 0; font-size: 16px; }
+            .option-item:hover { background: #edf2f7; }
+        }
+        
+        /* 反馈 */
+        .feedback { margin-top: 12px; padding: 10px; border-radius: 6px; display: none; font-weight: bold; font-size: 14px; line-height: 1.5; }
+        .success { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+        .error { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+
+        /* 考试样式 */
+        .exam-section-title { background: #edf2f7; padding: 10px; margin: 15px 0; border-left: 5px solid #3498db; font-weight: bold; font-size: 15px; }
+        #submit-exam { display: block; width: 90%; max-width: 220px; margin: 30px auto; padding: 14px; background: #27ae60; color: white; border: none; border-radius: 30px; font-size: 16px; cursor: pointer; min-height: 48px; font-weight: bold; }
+        #submit-exam:active { background: #229954; }
+        #result-summary { background: #2c3e50; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+
+        /* 多选题提交按钮 */
+        .submit-multi-btn { margin-top: 10px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; min-height: 44px; }
+        .submit-multi-btn:active { background: #2980b9; }
+        .submit-multi-btn:disabled { background: #95a5a6; cursor: not-allowed; }
+
+        @media (min-width: 768px) {
+            .feedback { margin-top: 15px; padding: 12px; font-size: 16px; }
+            .exam-section-title { margin: 20px 0; font-size: 16px; }
+            #submit-exam { width: 220px; margin: 40px auto; padding: 15px; font-size: 18px; }
+            #result-summary { padding: 20px; margin-bottom: 30px; }
+            .submit-multi-btn { font-size: 15px; }
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🤖 AI 技术伦理闯关测试</h1>
+
+    <div class="nav-menu">
+        <button id="btn-all" onclick="setMode('all')">📚 全题库刷题</button>
+        <button id="btn-mod" onclick="toggleModuleNav()">📂 分模块练习</button>
+        <button id="btn-exam" onclick="setMode('exam')">📝 模拟考试</button>
+    </div>
+
+    <div id="module-nav" class="nav-menu module-nav hidden">
+        <button id="mod-1" onclick="setMode('module', 1)">🛡️ 内容安全</button>
+        <button id="mod-2" onclick="setMode('module', 2)">🔒 隐私保护</button>
+        <button id="mod-3" onclick="setMode('module', 3)">⚖️ 版权归属</button>
+        <button id="mod-4" onclick="setMode('module', 4)">🌍 社会公正</button>
+        <button id="mod-5" onclick="setMode('module', 5)">🤝 人机协作</button>
+    </div>
+
+    <div id="quiz-container">
+        <div id="result-summary" class="hidden"></div>
+        <div id="quiz-content"></div>
+    </div>
+
+    <button id="submit-exam" class="hidden" onclick="submitExam()">提交试卷查看评分</button>
+</div>
+
+<script>
+// --- 这里是你的 100 题数据区 ---
+const quizData = [
+    // 示例数据，请务必把你的 100 题数组粘贴在这里
+   // --- 模块一：内容安全与真实性 (1-20题) ---
+    { id: 1, module: 1, type: "single", q: "AI 生成了错误的历史事实（如张冠李戴），这种现象被称为？", options: ["A. 智能进化", "B. 幻觉", "C. 幽默", "D. 知识更新"], answer: "B. 幻觉" },
+    { id: 2, module: 1, type: "single", q: "在使用 AI 写周记时，如果 AI 自动生成了一些贬低他人的言语，我们应该？", options: ["A. 直接复制提交", "B. 删除不当言论并修正", "C. 分享给同学看", "D. 责怪 AI 没用"], answer: "B. 删除不当言论并修正" },
+    { id: 3, module: 1, type: "single", q: "小美想用 AI 制作一张“某地发生大地震”的假照片发到朋友圈，这属于？", options: ["A. 艺术创作", "B. 传播虚假信息", "C. 展示技术", "D. 开个玩笑"], answer: "B. 传播虚假信息" },
+    { id: 4, module: 1, type: "judge", q: "AI 生成的所有信息都是经过科学验证的，可以直接作为科普材料。", options: ["正确", "错误"], answer: "错误" },
+    { id: 5, module: 1, type: "judge", q: "即使是 AI 生成的内容，如果包含暴力、色情等违规信息，也不能在网上传播。", options: ["正确", "错误"], answer: "正确" },
+    { id: 6, module: 1, type: "judge", q: "AI 写作助手可以帮我们查资料，但不能代替我们进行独立的思考。", options: ["正确", "错误"], answer: "正确" },
+    { id: 7, module: 1, type: "multi", q: "在使用 AIGC 工具时，下列哪些行为是符合伦理规范的？（多选）", options: ["A. 在生成内容上标注“由 AI 生成”", "B. 对生成内容进行多方核实", "C. 把 AI 错误答案当成唯一标准", "D. 利用 AI 优化语言（保留原创观点）"], answer: ["A. 在生成内容上标注“由 AI 生成”", "B. 对生成内容进行多方核实", "D. 利用 AI 优化语言（保留原创观点）"] },
+    { id: 8, module: 1, type: "single", q: "当我们无法确定 AI 生成的某条新闻是否真实时，最稳妥的做法是？", options: ["A. 先转发", "B. 去官方权威媒体查证", "C. 询问另一个 AI", "D. 无视真假"], answer: "B. 去官方权威媒体查证" },
+    { id: 9, module: 1, type: "judge", q: "作为 AI 使用者，我们是内容安全的第一责任人。", options: ["正确", "错误"], answer: "正确" },
+    { id: 10, module: 1, type: "single", q: "AI 提示词中加入“请用严谨科学的态度回答”，这主要为了？", options: ["A. 节省电费", "B. 减少幻觉和错误", "C. 让 AI 害怕", "D. 加快速度"], answer: "B. 减少幻觉和错误" },
+    // (此处补充 11-20 题，逻辑同上，聚焦信息把关与真实性)
+    { id: 11, module: 1, type: "single", q: "AI 生成的医学建议如果与医生说的不一致，应以谁为准？", options: ["A. AI", "B. 医生", "C. 网友", "D. 谁字多听谁的"], answer: "B. 医生" },
+    { id: 12, module: 1, type: "judge", q: "利用 AI 生成带有偏见的内容并发布，使用者也需承担责任。", options: ["正确", "错误"], answer: "正确" },
+    { id: 13, module: 1, type: "multi", q: "哪些行为体现了对 AIGC 工具的正确态度？（多选）", options: ["A. 保持好奇心", "B. 盲目崇拜", "C. 审慎使用", "D. 批判性思维"], answer: ["A. 保持好奇心", "C. 审慎使用", "D. 批判性思维"] },
+    { id: 14, module: 1, type: "single", q: "面对 AI 生成的诱导犯罪信息，应当？", options: ["A. 跟着学", "B. 举报反馈", "C. 转发群聊", "D. 存为本地"], answer: "B. 举报反馈" },
+    { id: 15, module: 1, type: "judge", q: "AI 的知识库是实时更新的，所以它的所有信息都是最新的。", options: ["正确", "错误"], answer: "错误" },
+    { id: 16, module: 1, type: "single", q: "小明用 AI 生成作业并在被老师发现后说是 AI 的错，这违背了？", options: ["A. 诚实原则", "B. 节能原则", "C. 创新原则", "D. 共享原则"], answer: "A. 诚实原则" },
+    { id: 17, module: 1, type: "multi", q: "识别 AI 生成图片的方法包括？（多选）", options: ["A. 观察手指细节", "B. 寻找逻辑瑕疵", "C. 检查是否有 AI 标识", "D. 只要好看就是 AI"], answer: ["A. 观察手指细节", "B. 寻找逻辑瑕疵", "C. 检查是否有 AI 标识"] },
+    { id: 18, module: 1, type: "judge", q: "AI 也有情感，所以它生成的攻击性言论是因为它心情不好。", options: ["正确", "错误"], answer: "错误" },
+    { id: 19, module: 1, type: "single", q: "“信息茧房”是指 AI 推荐让你只看到想看的内容，我们应？", options: ["A. 沉迷其中", "B. 拓宽信息获取渠道", "C. 只用一个软件", "D. 放弃上网"], answer: "B. 拓宽信息获取渠道" },
+    { id: 20, module: 1, type: "judge", q: "AI 时代的真相往往隐藏在海量数据中，需要我们去伪存真。", options: ["正确", "错误"], answer: "正确" },
+
+    // --- 模块二：隐私保护与肖像权 (21-40题) ---
+    { id: 21, module: 2, type: "single", q: "小强想用 AI 把女同学照片生成“婚纱照”并发到群里，这侵犯了？", options: ["A. 肖像权和隐私权", "B. 财产权", "C. 署名权", "D. 没侵权"], answer: "A. 肖像权和隐私权" },
+    { id: 22, module: 2, type: "single", q: "下列哪种信息绝对不能输入到公共 AI 聊天框中？", options: ["A. 菜谱", "B. 银行卡密码或住址", "C. 天气描述", "D. 数学草稿"], answer: "B. 银行卡密码或住址" },
+    { id: 23, module: 2, type: "judge", q: "只要照片是在网上公开的，我就可以随意用 AI 换脸并发布。", options: ["正确", "错误"], answer: "错误" },
+    { id: 24, module: 2, type: "multi", q: "保护个人隐私，在使用 AI 时要做到？（多选）", options: ["A. 不上传私密照", "B. 不输入敏感身份信息", "C. 退出后清除记录", "D. 仔细阅读隐私条款"], answer: ["A. 不上传私密照", "B. 不输入敏感身份信息", "C. 退出后清除记录", "D. 仔细阅读隐私条款"] },
+    { id: 25, module: 2, type: "single", q: "AI 软件要求开启麦克风权限录制他人对话，若未征得同意应？", options: ["A. 直接开启", "B. 拒绝并退出", "C. 偷偷录制", "D. 觉得好玩"], answer: "B. 拒绝并退出" },
+    { id: 26, module: 2, type: "judge", q: "AI 换脸技术（Deepfake）被用来伪造他人求救视频，属于犯罪行为。", options: ["正确", "错误"], answer: "正确" },
+    { id: 27, module: 2, type: "single", q: "注册 AI 账号时，对于要求输入身份证号的不明软件，应？", options: ["A. 赶紧输入", "B. 随便编一个", "C. 提高警惕拒绝", "D. 咨询客服"], answer: "C. 提高警惕拒绝" },
+    { id: 28, module: 2, type: "multi", q: "哪些属于 AI 时代可能泄露隐私的行为？（多选）", options: ["A. 将班级通讯录上传", "B. 上传家庭环境视频", "C. 使用弱密码登录", "D. 询问 AI 自己的姓名"], answer: ["A. 将班级通讯录上传", "B. 上传家庭环境视频", "C. 使用弱密码登录"] },
+    { id: 29, module: 2, type: "judge", q: "AI 学习了我的说话方式，这也属于我个人特征的隐私保护范畴。", options: ["正确", "错误"], answer: "正确" },
+    { id: 30, module: 2, type: "single", q: "发现有人用 AI 冒充亲友借钱，第一步应当？", options: ["A. 立即汇款", "B. 线下或电话核实", "C. 骂对方", "D. 删好友"], answer: "B. 线下或电话核实" },
+    // (此处填充 31-40 题，逻辑聚焦隐私泄露途径与防范)
+    { id: 31, module: 2, type: "judge", q: "AI 收集我的习惯是为了更好服务我，所以不需要担心隐私。", options: ["正确", "错误"], answer: "错误" },
+    { id: 32, module: 2, type: "single", q: "在网吧等公共电脑使用 AI 工具，结束后最重要的是？", options: ["A. 关显示器", "B. 彻底退出账号", "C. 给差评", "D. 锁住键盘"], answer: "B. 彻底退出账号" },
+    { id: 33, module: 2, type: "multi", q: "如果发现 AI 平台泄露了你的隐私，你可以？（多选）", options: ["A. 联系平台删除", "B. 向有关部门投诉", "C. 以牙还牙", "D. 修改密码"], answer: ["A. 联系平台删除", "B. 向有关部门投诉", "D. 修改密码"] },
+    { id: 34, module: 2, type: "judge", q: "使用 AI 自动翻译合同时，应注意合同内的商业机密保护。", options: ["正确", "错误"], answer: "正确" },
+    { id: 35, module: 2, type: "single", q: "生物识别信息（指纹、人脸）通过 AI 泄露后，其危害是？", options: ["A. 没影响", "B. 终身无法更改，危害巨大", "C. 只要改密码就行", "D. 很有趣"], answer: "B. 终身无法更改，危害巨大" },
+    { id: 36, module: 2, type: "judge", q: "隐私政策太长，我们可以直接点同意，不用看。", options: ["正确", "错误"], answer: "错误" },
+    { id: 37, module: 2, type: "multi", q: "为了安全，在输入 AI 提示词时可以采用什么方法？（多选）", options: ["A. 使用化名", "B. 脱敏敏感数据", "C. 直接输入真实姓名", "D. 模糊具体地址"], answer: ["A. 使用化名", "B. 脱敏敏感数据", "D. 模糊具体地址"] },
+    { id: 38, module: 2, type: "single", q: "发现 AI 软件后台频繁调用地理位置，这属于？", options: ["A. 正常服务", "B. 越权收集隐私", "C. 电脑中毒", "D. 手机省电"], answer: "B. 越权收集隐私" },
+    { id: 39, module: 2, type: "judge", q: "我们应该支持开发者在 AI 设计中加入“隐私保护”的原则。", options: ["正确", "错误"], answer: "正确" },
+    { id: 40, module: 2, type: "single", q: "AI 时代的“数字足迹”意味着我们的上网行为都会被记录，应？", options: ["A. 肆无忌惮", "B. 谨言慎行", "C. 躲起来", "D. 砸掉电脑"], answer: "B. 谨言慎行" },
+
+    // --- 模块三：版权归属与学术规范 (41-60题) ---
+    { id: 41, module: 3, type: "single", q: "小华用 AI 生成画作参加“手绘美术赛”，他应该？", options: ["A. 直接上交", "B. 确认规则并如实告知", "C. 装作是画的", "D. 让 AI 画差点"], answer: "B. 确认规则并如实告知" },
+    { id: 42, module: 3, type: "judge", q: "临摹 AI 生成的画作并声称是自己 100% 原创，属于误导行为。", options: ["正确", "错误"], answer: "正确" },
+    { id: 43, module: 3, type: "multi", q: "发表 AI 辅助生成的诗歌，最合适的标注是？（多选）", options: ["A. 某某原创", "B. AI 原创", "C. 某某（由 AI 辅助）", "D. 标注使用的模型"], answer: ["C. 某某（由 AI 辅助）", "D. 标注使用的模型"] },
+    { id: 44, module: 3, type: "single", q: "如果一份代码 90% 是 AI 生成，署名时最合适的是？", options: ["A. 只写自己", "B. 说明 AI 生成并经过调试", "C. 写 AI 名字", "D. 不署名"], answer: "B. 说明 AI 生成并经过调试" },
+    { id: 45, module: 3, type: "judge", q: "AI 绘画是学习了大量人类作品，所以它天生具有原创性。", options: ["正确", "错误"], answer: "错误" },
+    { id: 46, module: 3, type: "single", q: "未经许可将他人的收费 AI 绘画咒语（Prompt）公开，可能涉及？", options: ["A. 尊重版权", "B. 知识产权纠纷", "C. 提高效率", "D. 助人为乐"], answer: "B. 知识产权纠纷" },
+    { id: 47, module: 3, type: "multi", q: "为什么 AI 生成内容有时会侵犯人类画家的权利？（多选）", options: ["A. 训练数据未授权", "B. 过度模仿特定风格", "C. 画得太快", "D. 软件要收费"], answer: ["A. 训练数据未授权", "B. 过度模仿特定风格"] },
+    { id: 48, module: 3, type: "judge", q: "目前我国法律对 AI 生成内容的版权仍有讨论，不能盲目占有。", options: ["正确", "错误"], answer: "正确" },
+    { id: 49, module: 3, type: "single", q: "在使用 AI 引用资料时，必须确保？", options: ["A. 只要好听就行", "B. 资料来源真实且符合引用规范", "C. 全部照抄", "D. 删掉出处"], answer: "B. 资料来源真实且符合引用规范" },
+    { id: 50, module: 3, type: "judge", q: "将 AI 生成的作品申请专利，目前在大多数国家是不被支持的。", options: ["正确", "错误"], answer: "正确" },
+    // (此处填充 51-60 题，聚焦版权合规与诚实署名)
+    { id: 51, module: 3, type: "single", q: "AI 绘画工具生成的图片，其商用权限取决于？", options: ["A. 我心情", "B. 软件的服务协议", "C. 电脑性能", "D. 只要有电就行"], answer: "B. 软件的服务协议" },
+    { id: 52, module: 3, type: "judge", q: "完全由 AI 生成且人未参与创作的作品，目前不享有著作权保护。", options: ["正确", "错误"], answer: "正确" },
+    { id: 53, module: 3, type: "multi", q: "学术不端行为在使用 AI 时表现为？（多选）", options: ["A. 论文全由 AI 代写", "B. 伪造 AI 生成的实验数据", "C. 利用 AI 查资料并自己整理", "D. 隐藏使用 AI 的事实"], answer: ["A. 论文全由 AI 代写", "B. 伪造 AI 生成的实验数据", "D. 隐藏使用 AI 的事实"] },
+    { id: 54, module: 3, type: "single", q: "“洗稿”式 AI 改写他人文章，这属于？", options: ["A. 二次创作", "B. 隐蔽的侵权行为", "C. 技术进步", "D. 增加阅读量"], answer: "B. 隐蔽的侵权行为" },
+    { id: 55, module: 3, type: "judge", q: "AI 是工具，工具产生的结果责任应由使用者承担。", options: ["正确", "错误"], answer: "正确" },
+    { id: 56, module: 3, type: "single", q: "如果在作业中使用 AI 翻译，应向老师？", options: ["A. 隐瞒", "B. 如实说明", "C. 撒谎是同学翻的", "D. 说是看书学的"], answer: "B. 如实说明" },
+    { id: 57, module: 3, type: "multi", q: "合规使用 AI 素材的方式包括？（多选）", options: ["A. 检查开源协议", "B. 确认是否允许商用", "C. 标明生成工具", "D. 随意下载"], answer: ["A. 检查开源协议", "B. 确认是否允许商用", "C. 标明生成工具"] },
+    { id: 58, module: 3, type: "judge", q: "AI 时代的“创意”依然是人类最核心的竞争力。", options: ["正确", "错误"], answer: "正确" },
+    { id: 59, module: 3, type: "single", q: "为了尊重原创，我们在使用 AI 风格化照片时应？", options: ["A. 抹掉原画师名字", "B. 提及灵感来源或风格原作者", "C. 宣称是自创风格", "D. 悄悄发布"], answer: "B. 提及灵感来源或风格原作者" },
+    { id: 60, module: 3, type: "judge", q: "知识产权保护能促进 AI 技术的良性发展。", options: ["正确", "错误"], answer: "正确" },
+
+    // --- 模块四：社会公正与职业伦理 (61-80题) ---
+    { id: 61, module: 4, type: "single", q: "AI 翻译把“护士”默认翻成“她”，反映了 AI 的？", options: ["A. 聪明", "B. 技术偏见或刻板印象", "C. 随机性", "D. 硬件故障"], answer: "B. 技术偏见或刻板印象" },
+    { id: 62, module: 4, type: "single", q: "面对 AI 自动化，中职生最应具备的心态是？", options: ["A. 恐惧拒绝", "B. 学习与 AI 协作", "C. 学什么都没用", "D. 依赖 AI 干活"], answer: "B. 学习与 AI 协作" },
+    { id: 63, module: 4, type: "judge", q: "每个人都有平等获得和使用 AI 技术的权利，这就是数字包容。", options: ["正确", "错误"], answer: "正确" },
+    { id: 64, module: 4, type: "multi", q: "AI 偏见可能来源于？（多选）", options: ["A. 训练数据不平衡", "B. 开发者自身偏好", "C. 社会历史原因", "D. AI 电池不足"], answer: ["A. 训练数据不平衡", "B. 开发者自身偏好", "C. 社会历史原因"] },
+    { id: 65, module: 4, type: "single", q: "为了减少偏见，开发者在设计 AI 时应？", options: ["A. 只用一种数据", "B. 使用多样、公平的样本", "C. 闭门造车", "D. 不管不顾"], answer: "B. 使用多样、公平的样本" },
+    { id: 66, module: 4, type: "judge", q: "AI 正在取代所有工作，人类已经没有价值了。", options: ["正确", "错误"], answer: "错误" },
+    { id: 67, module: 4, type: "single", q: "“算法歧视”可能会让特定群体在求职时？", options: ["A. 更有优势", "B. 遭受不公平对待", "C. 收入翻倍", "D. 变漂亮"], answer: "B. 遭受不公平对待" },
+    { id: 68, module: 4, type: "multi", q: "AI 时代需要的新技能包括？（多选）", options: ["A. 提示词工程", "B. 批判性思维", "C. 跨学科合作", "D. 纯手动操作"], answer: ["A. 提示词工程", "B. 批判性思维", "C. 跨学科合作"] },
+    { id: 69, module: 4, type: "judge", q: "我们应当利用 AI 帮助残障人士等群体，促进社会平等。", options: ["正确", "错误"], answer: "正确" },
+    { id: 70, module: 4, type: "single", q: "发现 AI 回复中带有严重的性别歧视，我们应当？", options: ["A. 跟它吵架", "B. 截图反馈并停止传播", "C. 转发朋友圈", "D. 赞同它"], answer: "B. 截图反馈并停止传播" },
+    // (此处填充 71-80 题，聚焦社会公正、数字鸿沟与职业转型)
+    { id: 71, module: 4, type: "judge", q: "AI 只服务于有钱人，不符合技术发展的伦理方向。", options: ["正确", "错误"], answer: "正确" },
+    { id: 72, module: 4, type: "single", q: "教育领域使用 AI 应保证教育？", options: ["A. 娱乐化", "B. 公平性和普及性", "C. 昂贵化", "D. 复杂化"], answer: "B. 公平性和普及性" },
+    { id: 73, module: 4, type: "multi", q: "如何跨越“数字鸿沟”？（多选）", options: ["A. 普及网络设施", "B. 开展 AI 技能培训", "C. 提高 AI 使用门槛", "D. 降低使用成本"], answer: ["A. 普及网络设施", "B. 开展 AI 技能培训", "D. 降低使用成本"] },
+    { id: 74, module: 4, type: "judge", q: "AI 辅助决策不应在司法判决中完全取代法官。", options: ["正确", "错误"], answer: "正确" },
+    { id: 75, module: 4, type: "single", q: "AI 开发应当遵循“以人为本”的原则，这指的是？", options: ["A. AI 比人高级", "B. 技术应服务于人类福祉", "C. 人应服从 AI", "D. AI 应有人类的样子"], answer: "B. 技术应服务于人类福祉" },
+    { id: 76, module: 4, type: "judge", q: "虽然 AI 会取代部分旧岗位，但也会创造更多新岗位。", options: ["正确", "错误"], answer: "正确" },
+    { id: 77, module: 4, type: "multi", q: "在 AI 环境下工作，职业道德包括？（多选）", options: ["A. 保护用户数据", "B. 确保输出内容合规", "C. 弄虚作假", "D. 负责任的使用技术"], answer: ["A. 保护用户数据", "B. 确保输出内容合规", "D. 负责任的使用技术"] },
+    { id: 78, module: 4, type: "single", q: "当 AI 的决策结果对他人造成伤害时，人类应？", options: ["A. 逃避责任", "B. 勇于承担并修正算法", "C. 责怪电脑", "D. 假装没看见"], answer: "B. 勇于承担并修正算法" },
+    { id: 79, module: 4, type: "judge", q: "社会公正意味着 AI 算法的逻辑应当对公众具有透明度。", options: ["正确", "错误"], answer: "正确" },
+    { id: 80, module: 4, type: "single", q: "终身学习是 AI 时代应对变化的？", options: ["A. 累赘", "B. 核心武器", "C. 负担", "D. 选修课"], answer: "B. 核心武器" },
+
+    // --- 模块五：综合应用与人机协作 (81-100题) ---
+    { id: 81, module: 5, type: "single", q: "编写 Prompt 时加入“不要生成有害内容”是为了？", options: ["A. 引导 AI 遵循伦理", "B. 让 AI 害怕", "C. 节省电费", "D. 加快速度"], answer: "A. 引导 AI 遵循伦理" },
+    { id: 82, module: 5, type: "single", q: "学习 AI 伦理的主要目的是？", options: ["A. 考试", "B. 阻止 AI 发展", "C. 显摆知识", "D. 确保技术造福人类"], answer: "D. 确保技术造福人类" },
+    { id: 83, module: 5, type: "judge", q: "人机协作的理想状态是“人主导，机辅助”。", options: ["正确", "错误"], answer: "正确" },
+    { id: 84, module: 5, type: "multi", q: "如何评价 AI 生成的答案？（多选）", options: ["A. 事实性核查", "B. 逻辑性检查", "C. 伦理性考量", "D. 直接全信"], answer: ["A. 事实性核查", "B. 逻辑性检查", "C. 伦理性考量"] },
+    { id: 85, module: 5, type: "single", q: "在利用 AI 创作时，保持“批判性思维”意味着？", options: ["A. 全盘否定", "B. 独立思考并质疑其结果", "C. 只看缺点", "D. 不准 AI 回答"], answer: "B. 独立思考并质疑其结果" },
+    { id: 86, module: 5, type: "judge", q: "AI 时代的教育核心应转向培养学生的创造力、同理心。", options: ["正确", "错误"], answer: "正确" },
+    { id: 87, module: 5, type: "multi", q: "我们应该如何与 AI 正确相处？（多选）", options: ["A. 把它当成办公助手", "B. 保持独立思考", "C. 逃避学习新技能", "D. 遵守道德底线"], answer: ["A. 把它当成办公助手", "B. 保持独立思考", "D. 遵守道德底线"] },
+    { id: 88, module: 5, type: "single", q: "面对 AI 生成的令人不适的内容，我们应当？", options: ["A. 默默忍受", "B. 立即终止对话并反馈", "C. 拍手叫好", "D. 收藏起来"], answer: "B. 立即终止对话并反馈" },
+    { id: 89, module: 5, type: "judge", q: "人类是 AI 的主人，必须对 AI 的所有输出结果负责。", options: ["正确", "错误"], answer: "正确" },
+    { id: 90, module: 5, type: "single", q: "AIGC 技术的“G”代表生成（Generative），意味着它是？", options: ["A. 只会搜索", "B. 能创造新内容", "C. 只会画画", "D. 只会聊天"], answer: "B. 能创造新内容" },
+    // (最后填充 91-100 题，聚焦未来展望与人机伦理)
+    { id: 91, module: 5, type: "judge", q: "AI 的本质依然是代码和算法，它没有生命。", options: ["正确", "错误"], answer: "正确" },
+    { id: 92, module: 5, type: "single", q: "在利用 AI 写作时，如果 AI 跑题了，你应该？", options: ["A. 跟着它跑", "B. 重新调整 Prompt 引导它", "C. 砸电脑", "D. 放弃写作"], answer: "B. 重新调整 Prompt 引导它" },
+    { id: 93, module: 5, type: "multi", q: "高素质的 AI 使用者应具备？（多选）", options: ["A. 技术素养", "B. 伦理意识", "C. 法律常识", "D. 偷懒技巧"], answer: ["A. 技术素养", "B. 伦理意识", "C. 法律常识"] },
+    { id: 94, module: 5, type: "judge", q: "AI 的发展应遵循“透明度”原则，让用户知道 AI 如何决策。", options: ["正确", "错误"], answer: "正确" },
+    { id: 95, module: 5, type: "single", q: "利用 AI 恶意攻击他人网络系统，这触犯了？", options: ["A. 刑法等相关法律", "B. 班规", "C. 没触法", "D. 礼仪"], answer: "A. 刑法等相关法律" },
+    { id: 96, module: 5, type: "judge", q: "AI 时代的伦理准则也会随着技术发展而不断完善。", options: ["正确", "错误"], answer: "正确" },
+    { id: 97, module: 5, type: "multi", q: "保护“数字遗忘权”意味着你可以？（多选）", options: ["A. 要求 AI 平台删除你的数据", "B. 清除所有上网痕迹", "C. 随意造谣", "D. 保护个人过去的信息不被滥用"], answer: ["A. 要求 AI 平台删除你的数据", "D. 保护个人过去的信息不被滥用"] },
+    { id: 98, module: 5, type: "single", q: "我们要建设的是“负责任的人工智能”，这需要？", options: ["A. 只有科学家努力", "B. 全社会共同参与监管和自律", "C. AI 自己努力", "D. 顺其自然"], answer: "B. 全社会共同参与监管和自律" },
+    { id: 99, module: 5, type: "judge", q: "AI 技术是双刃剑，善恶取决于使用者。", options: ["正确", "错误"], answer: "正确" },
+    { id: 100, module: 5, type: "single", q: "完成这 100 道题后，你觉得 AI 伦理最重要的核心是？", options: ["A. 技术第一", "B. 尊重人类福祉与尊严", "C. 赚钱第一", "D. 没用"], answer: "B. 尊重人类福祉与尊严" }
+];
+
+let currentQuestions = [];
+let mode = 'all';
+let answers = {}; // 记录用户选择
+let currentScore = 0; // 当前得分
+let totalAnswered = 0; // 已答题数
+
+function toggleModuleNav() {
+    // 清除所有按钮的选中状态
+    document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
+
+    // 高亮"分模块练习"按钮
+    document.getElementById('btn-mod').classList.add('active');
+
+    // 显示模块导航
+    document.getElementById('module-nav').classList.remove('hidden');
+
+    // 清空题目内容（等待用户选择具体模块）
+    document.getElementById('quiz-content').innerHTML = '';
+    document.getElementById('result-summary').classList.add('hidden');
+    document.getElementById('submit-exam').classList.add('hidden');
+}
+
+function setMode(newMode, modId = null) {
+    mode = newMode;
+    answers = {}; // 重置答案
+    currentScore = 0; // 重置得分
+    totalAnswered = 0; // 重置已答题数
+
+    // 清空所有内容（包括得分卡片）
+    const quizContent = document.getElementById('quiz-content');
+    quizContent.innerHTML = '';
+
+    document.getElementById('result-summary').classList.add('hidden');
+    document.getElementById('submit-exam').classList.add('hidden');
+
+    // 更新按钮状态
+    document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
+
+    if (mode === 'all') {
+        currentQuestions = [...quizData];
+        document.getElementById('btn-all').classList.add('active');
+        // 隐藏模块导航
+        document.getElementById('module-nav').classList.add('hidden');
+    } else if (mode === 'module') {
+        currentQuestions = quizData.filter(q => q.module === modId);
+        document.getElementById('btn-mod').classList.add('active');
+        // 确保模块导航可见
+        document.getElementById('module-nav').classList.remove('hidden');
+        // 高亮选中的模块
+        if (modId) {
+            document.getElementById(`mod-${modId}`).classList.add('active');
+        }
+    } else if (mode === 'exam') {
+        currentQuestions = prepareExam();
+        document.getElementById('btn-exam').classList.add('active');
+        document.getElementById('submit-exam').classList.remove('hidden');
+        // 隐藏模块导航
+        document.getElementById('module-nav').classList.add('hidden');
+    }
+
+    renderQuestions();
+    window.scrollTo(0, 0);
+}
+
+function prepareExam() {
+    // 抽题逻辑：10单、10多、10判断
+    const getRand = (arr, num) => arr.sort(() => 0.5 - Math.random()).slice(0, num);
+    const s = getRand(quizData.filter(q => q.type === 'single'), 10);
+    const m = getRand(quizData.filter(q => q.type === 'multi'), 10);
+    const j = getRand(quizData.filter(q => q.type === 'judge'), 10);
+    return [...s, ...m, ...j];
+}
+
+function renderQuestions() {
+    const content = document.getElementById('quiz-content');
+    let lastType = '';
+
+    currentQuestions.forEach((q, idx) => {
+        // 模考模式下按题型加标题
+        if (mode === 'exam' && q.type !== lastType) {
+            const section = document.createElement('div');
+            section.className = 'exam-section-title';
+            section.innerText = q.type === 'single' ? '一、单选题' : (q.type === 'multi' ? '二、多选题' : '三、判断题');
+            content.appendChild(section);
+            lastType = q.type;
+        }
+
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        block.id = `block-${q.id}`;
+        
+        let typeLabel = q.type === 'single' ? '单选' : (q.type === 'multi' ? '多选' : '判断');
+        block.innerHTML = `
+            <div class="q-header">
+                <span class="q-type">${typeLabel}</span>
+                <span class="q-text">${idx + 1}. ${q.q}</span>
+            </div>
+            <div class="options-list" id="opts-${q.id}"></div>
+            ${q.type === 'multi' && mode !== 'exam' ? `<button class="submit-multi-btn" id="submit-${q.id}" onclick="submitMultiAnswer(${q.id})">提交答案</button>` : ''}
+            <div class="feedback" id="feed-${q.id}"></div>
+        `;
+
+        const optsList = block.querySelector(`#opts-${q.id}`);
+        q.options.forEach(opt => {
+            const item = document.createElement('div');
+            item.className = 'option-item';
+            item.id = `opt-${q.id}-${opt.replace(/\s+/g, '')}`;
+
+            if (q.type === 'multi') {
+                item.innerHTML = `<label><input type="checkbox" value="${opt}" onchange="selectMulti(${q.id})"> ${opt}</label>`;
+            } else {
+                item.innerText = opt;
+                item.onclick = () => selectSingle(q.id, opt);
+            }
+            optsList.appendChild(item);
+        });
+
+        content.appendChild(block);
+    });
+
+    // 模拟考试模式：在题目下方显示评分标准
+    if (mode === 'exam') {
+        const scoreNote = document.createElement('div');
+        scoreNote.style.cssText = 'background: #edf2f7; padding: 15px; margin: 30px 0; border-radius: 8px; text-align: center; color: #2c3e50;';
+        scoreNote.innerHTML = `
+            <p style="margin: 0; font-size: 16px; font-weight: bold;">📋 评分标准</p>
+            <p style="margin: 10px 0 0 0; font-size: 14px;">单选题：3分/题 | 多选题：4分/题 | 判断题：3分/题 | 满分：100分</p>
+        `;
+        content.appendChild(scoreNote);
+    }
+
+    // 全题库刷题和分模块练习：添加实时得分显示
+    if (mode === 'all' || mode === 'module') {
+        const scoreDisplay = document.createElement('div');
+        scoreDisplay.id = 'score-display';
+        scoreDisplay.style.cssText = 'position: sticky; top: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; margin: 20px 0; border-radius: 12px; text-align: center; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2);';
+        scoreDisplay.innerHTML = `
+            <p style="margin: 0; font-size: 18px; font-weight: bold;">📊 当前得分</p>
+            <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold;" id="current-score">0</p>
+            <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">已答 <span id="answered-count">0</span> / ${currentQuestions.length} 题 | 满分 100 分</p>
+        `;
+        content.insertBefore(scoreDisplay, content.firstChild);
+    }
+}
+
+function selectSingle(qId, val) {
+    answers[qId] = val;
+    // UI反馈
+    const list = document.getElementById(`opts-${qId}`);
+    list.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+    document.getElementById(`opt-${qId}-${val.replace(/\s+/g, '')}`).classList.add('selected');
+
+    // 刷题模式即时反馈
+    if (mode !== 'exam') {
+        showImmediateFeedback(qId);
+    }
+}
+
+function selectMulti(qId) {
+    const list = document.getElementById(`opts-${qId}`);
+    const selected = Array.from(list.querySelectorAll('input:checked')).map(i => i.value);
+    answers[qId] = selected;
+
+    // 背景高亮
+    list.querySelectorAll('.option-item').forEach(el => {
+        const checked = el.querySelector('input').checked;
+        checked ? el.classList.add('selected') : el.classList.remove('selected');
+    });
+}
+
+function submitMultiAnswer(qId) {
+    // 检查是否已选择答案
+    if (!answers[qId] || answers[qId].length === 0) {
+        alert('请至少选择一个选项');
+        return;
+    }
+
+    // 显示反馈
+    showImmediateFeedback(qId);
+
+    // 禁用提交按钮
+    const btn = document.getElementById(`submit-${qId}`);
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = '已提交';
+    }
+}
+
+function showImmediateFeedback(qId) {
+    const q = quizData.find(x => x.id === qId);
+    const feed = document.getElementById(`feed-${qId}`);
+    feed.style.display = 'block';
+
+    let correct = false;
+    if (q.type === 'multi') {
+        const user = answers[qId];
+        correct = Array.isArray(user) && user.length === q.answer.length && user.every(v => q.answer.includes(v));
+    } else {
+        correct = answers[qId] === q.answer;
+    }
+
+    // 计算本题分值
+    let pointsEarned = 0;
+    if (correct) {
+        if (mode === 'all') {
+            // 全题库刷题模式：每题1分
+            pointsEarned = 1;
+        } else if (mode === 'module') {
+            // 分模块练习：每题5分
+            pointsEarned = 5;
+        }
+
+        // 更新总分
+        currentScore += pointsEarned;
+        totalAnswered++;
+
+        // 更新得分显示
+        updateScoreDisplay();
+    } else {
+        totalAnswered++;
+        updateScoreDisplay();
+    }
+
+    if (correct) {
+        feed.className = 'feedback success';
+        feed.innerHTML = `👏 你真棒！回答正确。${mode !== 'exam' ? `<span style="color: #27ae60; font-weight: bold;"> +${pointsEarned}分</span>` : ''}`;
+    } else {
+        feed.className = 'feedback error';
+        const ansStr = Array.isArray(q.answer) ? q.answer.join('，') : q.answer;
+        feed.innerHTML = `💪 不要气馁。正确答案是：${ansStr}`;
+    }
+}
+
+function updateScoreDisplay() {
+    const scoreEl = document.getElementById('current-score');
+    const countEl = document.getElementById('answered-count');
+    if (scoreEl) {
+        scoreEl.innerText = currentScore;
+    }
+    if (countEl) {
+        countEl.innerText = totalAnswered;
+    }
+}
+
+function submitExam() {
+    // 隐藏实时得分显示（如果存在）
+    const scoreDisplay = document.getElementById('score-display');
+    if (scoreDisplay) {
+        scoreDisplay.style.display = 'none';
+    }
+
+    // 检查是否所有题都已作答
+    const unanswered = currentQuestions.filter(q => {
+        const ans = answers[q.id];
+        if (q.type === 'multi') {
+            return !ans || ans.length === 0;
+        }
+        return !ans;
+    });
+
+    if (unanswered.length > 0) {
+        const confirmSubmit = confirm(`您还有 ${unanswered.length} 道题未作答，确定要提交吗？\n\n未作答的题目将不得分。`);
+        if (!confirmSubmit) {
+            // 如果取消提交，恢复得分显示
+            if (scoreDisplay) {
+                scoreDisplay.style.display = 'block';
+            }
+            return;
+        }
+    }
+
+    let score = 0;
+    currentQuestions.forEach(q => {
+        const user = answers[q.id];
+        let correct = false;
+        if (q.type === 'multi') {
+            correct = Array.isArray(user) && user.length === q.answer.length && user.every(v => q.answer.includes(v));
+        } else {
+            correct = user === q.answer;
+        }
+
+        // 计算得分：单选3分，判断3分，多选4分
+        if (correct) {
+            if (q.type === 'multi') {
+                score += 4;
+            } else {
+                score += 3;
+            }
+        }
+
+        // 显示详细结果
+        const feed = document.getElementById(`feed-${q.id}`);
+        feed.style.display = 'block';
+        if (correct) {
+            feed.className = 'feedback success';
+            feed.innerHTML = '✅ 正确';
+        } else {
+            feed.className = 'feedback error';
+            const ansStr = Array.isArray(q.answer) ? q.answer.join('，') : q.answer;
+            feed.innerHTML = `❌ 错误。正确答案是：${ansStr}`;
+        }
+    });
+
+    const summary = document.getElementById('result-summary');
+    summary.classList.remove('hidden');
+    summary.innerHTML = `<h2>考试交卷成功！</h2><p style="font-size:32px">得分：${score} 分</p>`;
+    document.getElementById('submit-exam').classList.add('hidden');
+    window.scrollTo(0, 0);
+}
+
+// 启动
+window.onload = () => setMode('all');
+</script>
+</body>
+</html>
