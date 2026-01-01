@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -108,7 +109,6 @@
 const quizData = [
     // 示例数据，请务必把你的 100 题数组粘贴在这里
    // --- 模块一：内容安全与真实性 (1-20题) ---
-    // --- 模块一：内容安全与真实性 (1-20题) ---
     { id: 1, module: 1, type: "single", q: "AI 生成了错误的历史事实（如张冠李戴），这种现象被称为？", options: ["A. 智能进化", "B. 幻觉", "C. 幽默", "D. 知识更新"], answer: "B. 幻觉" },
     { id: 2, module: 1, type: "single", q: "在使用 AI 写周记时，如果 AI 自动生成了一些贬低他人的言语，我们应该？", options: ["A. 直接复制提交", "B. 删除不当言论并修正", "C. 分享给同学看", "D. 责怪 AI 没用"], answer: "B. 删除不当言论并修正" },
     { id: 3, module: 1, type: "single", q: "小美想用 AI 制作一张“某地发生大地震”的假照片发到朋友圈，这属于？", options: ["A. 艺术创作", "B. 传播虚假信息", "C. 展示技术", "D. 开个玩笑"], answer: "B. 传播虚假信息" },
@@ -270,7 +270,11 @@ function setMode(newMode, modId = null) {
     quizContent.innerHTML = '';
 
     document.getElementById('result-summary').classList.add('hidden');
-    document.getElementById('submit-exam').classList.add('hidden');
+
+    // 重置提交按钮状态（先隐藏，后续根据模式显示）
+    const submitBtn = document.getElementById('submit-exam');
+    submitBtn.style.display = 'none';  // 重置 style.display
+    submitBtn.classList.add('hidden');
 
     // 更新按钮状态
     document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
@@ -278,6 +282,10 @@ function setMode(newMode, modId = null) {
     if (mode === 'all') {
         currentQuestions = [...quizData];
         document.getElementById('btn-all').classList.add('active');
+        // 全题库刷题模式：强制显示提交按钮
+        const submitBtn = document.getElementById('submit-exam');
+        submitBtn.style.display = 'block';  // 使用 style.display 强制显示
+        submitBtn.classList.remove('hidden');
         // 隐藏模块导航
         document.getElementById('module-nav').classList.add('hidden');
     } else if (mode === 'module') {
@@ -296,7 +304,10 @@ function setMode(newMode, modId = null) {
     } else if (mode === 'exam') {
         currentQuestions = prepareExam();
         document.getElementById('btn-exam').classList.add('active');
-        document.getElementById('submit-exam').classList.remove('hidden');
+        // 模拟考试模式：强制显示提交按钮
+        const submitBtn = document.getElementById('submit-exam');
+        submitBtn.style.display = 'block';  // 使用 style.display 强制显示
+        submitBtn.classList.remove('hidden');
         // 隐藏模块导航
         document.getElementById('module-nav').classList.add('hidden');
     }
