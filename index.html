@@ -108,6 +108,7 @@
 const quizData = [
     // 示例数据，请务必把你的 100 题数组粘贴在这里
    // --- 模块一：内容安全与真实性 (1-20题) ---
+    // --- 模块一：内容安全与真实性 (1-20题) ---
     { id: 1, module: 1, type: "single", q: "AI 生成了错误的历史事实（如张冠李戴），这种现象被称为？", options: ["A. 智能进化", "B. 幻觉", "C. 幽默", "D. 知识更新"], answer: "B. 幻觉" },
     { id: 2, module: 1, type: "single", q: "在使用 AI 写周记时，如果 AI 自动生成了一些贬低他人的言语，我们应该？", options: ["A. 直接复制提交", "B. 删除不当言论并修正", "C. 分享给同学看", "D. 责怪 AI 没用"], answer: "B. 删除不当言论并修正" },
     { id: 3, module: 1, type: "single", q: "小美想用 AI 制作一张“某地发生大地震”的假照片发到朋友圈，这属于？", options: ["A. 艺术创作", "B. 传播虚假信息", "C. 展示技术", "D. 开个玩笑"], answer: "B. 传播虚假信息" },
@@ -119,14 +120,14 @@ const quizData = [
     { id: 9, module: 1, type: "judge", q: "作为 AI 使用者，我们是内容安全的第一责任人。", options: ["正确", "错误"], answer: "正确" },
     { id: 10, module: 1, type: "single", q: "AI 提示词中加入“请用严谨科学的态度回答”，这主要为了？", options: ["A. 节省电费", "B. 减少幻觉和错误", "C. 让 AI 害怕", "D. 加快速度"], answer: "B. 减少幻觉和错误" },
     // (此处补充 11-20 题，逻辑同上，聚焦信息把关与真实性)
-    { id: 11, module: 1, type: "single", q: "AI 生成的医学建议如果与医生说的不一致，应以谁为准？", options: ["A. AI", "B. 医生", "C. 网友", "D. 谁字多听谁的"], answer: "B. 医生" },
+    { id: 11, module: 1, type: "single", q: "小明身体不适，AI 给出了详细的‘诊断’和‘药方’，此时最正确的做法是？", options: ["A. 相信 AI，直接去买药", "B. 仅供参考，必须去医院咨询医生", "C. 增加剂量以求快点好", "D. 推荐给生病的同学"], answer: "B. 仅供参考，必须去医院咨询医生" },
     { id: 12, module: 1, type: "judge", q: "利用 AI 生成带有偏见的内容并发布，使用者也需承担责任。", options: ["正确", "错误"], answer: "正确" },
     { id: 13, module: 1, type: "multi", q: "哪些行为体现了对 AIGC 工具的正确态度？（多选）", options: ["A. 保持好奇心", "B. 盲目崇拜", "C. 审慎使用", "D. 批判性思维"], answer: ["A. 保持好奇心", "C. 审慎使用", "D. 批判性思维"] },
     { id: 14, module: 1, type: "single", q: "面对 AI 生成的诱导犯罪信息，应当？", options: ["A. 跟着学", "B. 举报反馈", "C. 转发群聊", "D. 存为本地"], answer: "B. 举报反馈" },
     { id: 15, module: 1, type: "judge", q: "AI 的知识库是实时更新的，所以它的所有信息都是最新的。", options: ["正确", "错误"], answer: "错误" },
     { id: 16, module: 1, type: "single", q: "小明用 AI 生成作业并在被老师发现后说是 AI 的错，这违背了？", options: ["A. 诚实原则", "B. 节能原则", "C. 创新原则", "D. 共享原则"], answer: "A. 诚实原则" },
-    { id: 17, module: 1, type: "multi", q: "识别 AI 生成图片的方法包括？（多选）", options: ["A. 观察手指细节", "B. 寻找逻辑瑕疵", "C. 检查是否有 AI 标识", "D. 只要好看就是 AI"], answer: ["A. 观察手指细节", "B. 寻找逻辑瑕疵", "C. 检查是否有 AI 标识"] },
-    { id: 18, module: 1, type: "judge", q: "AI 也有情感，所以它生成的攻击性言论是因为它心情不好。", options: ["正确", "错误"], answer: "错误" },
+    { id: 17, module: 1, type: "multi", q: "面对网上流传的‘名人惊人言论’视频（疑似 Deepfake 换脸），有效的核实方法包括？（多选）", options: ["A. 查找官方账号或权威媒体的报道", "B. 观察口型、面部边缘是否自然", "C. 只有几个人转发就不信", "D. 只要视频清晰就是真的"], answer: ["A. 查找官方账号或权威媒体的报道", "B. 观察口型、面部边缘是否自然"] },
+{ id: 18, module: 1, type: "judge", q: "虽然 AI 聊天机器人的语气很像人，但它本质上是基于数据的概率模型，并不具备真正的情感。", options: ["正确", "错误"], answer: "正确" },
     { id: 19, module: 1, type: "single", q: "“信息茧房”是指 AI 推荐让你只看到想看的内容，我们应？", options: ["A. 沉迷其中", "B. 拓宽信息获取渠道", "C. 只用一个软件", "D. 放弃上网"], answer: "B. 拓宽信息获取渠道" },
     { id: 20, module: 1, type: "judge", q: "AI 时代的真相往往隐藏在海量数据中，需要我们去伪存真。", options: ["正确", "错误"], answer: "正确" },
 
@@ -138,8 +139,9 @@ const quizData = [
     { id: 25, module: 2, type: "single", q: "AI 软件要求开启麦克风权限录制他人对话，若未征得同意应？", options: ["A. 直接开启", "B. 拒绝并退出", "C. 偷偷录制", "D. 觉得好玩"], answer: "B. 拒绝并退出" },
     { id: 26, module: 2, type: "judge", q: "AI 换脸技术（Deepfake）被用来伪造他人求救视频，属于犯罪行为。", options: ["正确", "错误"], answer: "正确" },
     { id: 27, module: 2, type: "single", q: "注册 AI 账号时，对于要求输入身份证号的不明软件，应？", options: ["A. 赶紧输入", "B. 随便编一个", "C. 提高警惕拒绝", "D. 咨询客服"], answer: "C. 提高警惕拒绝" },
-    { id: 28, module: 2, type: "multi", q: "哪些属于 AI 时代可能泄露隐私的行为？（多选）", options: ["A. 将班级通讯录上传", "B. 上传家庭环境视频", "C. 使用弱密码登录", "D. 询问 AI 自己的姓名"], answer: ["A. 将班级通讯录上传", "B. 上传家庭环境视频", "C. 使用弱密码登录"] },
-    { id: 29, module: 2, type: "judge", q: "AI 学习了我的说话方式，这也属于我个人特征的隐私保护范畴。", options: ["正确", "错误"], answer: "正确" },
+    { id: 28, module: 2, type: "multi", q: "哪些属于 AI 时代可能导致隐私泄露的高风险行为？（多选）", options: ["A. 将班级通讯录上传给未知的 AI 平台", "B. 上传包含家庭环境背景的视频", "C. 所有账号都使用同一个简单密码", "D. 开启账号的双重验证保护"], answer: ["A. 将班级通讯录上传给未知的 AI 平台", "B. 上传包含家庭环境背景的视频", "C. 所有账号都使用同一个简单密码"] },
+    
+    { id: 29, module: 2, type: "judge", q: "不仅是人脸指纹，‘声纹’（声音特征）也属于生物识别隐私，随意克隆他人声音可能导致诈骗风险。", options: ["正确", "错误"], answer: "正确" },
     { id: 30, module: 2, type: "single", q: "发现有人用 AI 冒充亲友借钱，第一步应当？", options: ["A. 立即汇款", "B. 线下或电话核实", "C. 骂对方", "D. 删好友"], answer: "B. 线下或电话核实" },
     // (此处填充 31-40 题，逻辑聚焦隐私泄露途径与防范)
     { id: 31, module: 2, type: "judge", q: "AI 收集我的习惯是为了更好服务我，所以不需要担心隐私。", options: ["正确", "错误"], answer: "错误" },
@@ -151,16 +153,17 @@ const quizData = [
     { id: 37, module: 2, type: "multi", q: "为了安全，在输入 AI 提示词时可以采用什么方法？（多选）", options: ["A. 使用化名", "B. 脱敏敏感数据", "C. 直接输入真实姓名", "D. 模糊具体地址"], answer: ["A. 使用化名", "B. 脱敏敏感数据", "D. 模糊具体地址"] },
     { id: 38, module: 2, type: "single", q: "发现 AI 软件后台频繁调用地理位置，这属于？", options: ["A. 正常服务", "B. 越权收集隐私", "C. 电脑中毒", "D. 手机省电"], answer: "B. 越权收集隐私" },
     { id: 39, module: 2, type: "judge", q: "我们应该支持开发者在 AI 设计中加入“隐私保护”的原则。", options: ["正确", "错误"], answer: "正确" },
-    { id: 40, module: 2, type: "single", q: "AI 时代的“数字足迹”意味着我们的上网行为都会被记录，应？", options: ["A. 肆无忌惮", "B. 谨言慎行", "C. 躲起来", "D. 砸掉电脑"], answer: "B. 谨言慎行" },
+   { id: 40, module: 2, type: "single", q: "AI 时代的‘数字足迹’难以彻底消除，不良的上网记录可能会？", options: ["A. 随时间自动消失", "B. 影响个人的数字声誉和信用", "C. 只有自己看得到", "D. 被系统定期清理"], answer: "B. 影响个人的数字声誉和信用" },
 
     // --- 模块三：版权归属与学术规范 (41-60题) ---
     { id: 41, module: 3, type: "single", q: "小华用 AI 生成画作参加“手绘美术赛”，他应该？", options: ["A. 直接上交", "B. 确认规则并如实告知", "C. 装作是画的", "D. 让 AI 画差点"], answer: "B. 确认规则并如实告知" },
-    { id: 42, module: 3, type: "judge", q: "临摹 AI 生成的画作并声称是自己 100% 原创，属于误导行为。", options: ["正确", "错误"], answer: "正确" },
-    { id: 43, module: 3, type: "multi", q: "发表 AI 辅助生成的诗歌，最合适的标注是？（多选）", options: ["A. 某某原创", "B. AI 原创", "C. 某某（由 AI 辅助）", "D. 标注使用的模型"], answer: ["C. 某某（由 AI 辅助）", "D. 标注使用的模型"] },
+    { id: 42, module: 3, type: "judge", q: "在参加绘画或写作比赛时，直接提交 AI 生成的作品并隐瞒使用情况，属于学术/艺术欺诈行为。", options: ["正确", "错误"], answer: "正确" },
+    
+    { id: 43, module: 3, type: "multi", q: "在发表 AI 辅助生成的文章或诗歌时，符合伦理规范的标注方式有哪些？（多选）", options: ["A. 标注“本文由 AI 辅助生成”", "B. 列出使用的 AI 工具名称", "C. 详细说明 AI 参与创作的部分", "D. 无论占比多少都标为“纯人工原创”"], answer: ["A. 标注“本文由 AI 辅助生成”", "B. 列出使用的 AI 工具名称", "C. 详细说明 AI 参与创作的部分"] },
     { id: 44, module: 3, type: "single", q: "如果一份代码 90% 是 AI 生成，署名时最合适的是？", options: ["A. 只写自己", "B. 说明 AI 生成并经过调试", "C. 写 AI 名字", "D. 不署名"], answer: "B. 说明 AI 生成并经过调试" },
-    { id: 45, module: 3, type: "judge", q: "AI 绘画是学习了大量人类作品，所以它天生具有原创性。", options: ["正确", "错误"], answer: "错误" },
+{ id: 45, module: 3, type: "judge", q: "AI 的‘创作’本质上是对已有数据的重新组合与概率生成，目前法律界普遍认为它不具备人类的独创性思维。", options: ["正确", "错误"], answer: "正确" },
     { id: 46, module: 3, type: "single", q: "未经许可将他人的收费 AI 绘画咒语（Prompt）公开，可能涉及？", options: ["A. 尊重版权", "B. 知识产权纠纷", "C. 提高效率", "D. 助人为乐"], answer: "B. 知识产权纠纷" },
-    { id: 47, module: 3, type: "multi", q: "为什么 AI 生成内容有时会侵犯人类画家的权利？（多选）", options: ["A. 训练数据未授权", "B. 过度模仿特定风格", "C. 画得太快", "D. 软件要收费"], answer: ["A. 训练数据未授权", "B. 过度模仿特定风格"] },
+    { id: 47, module: 3, type: "multi", q: "为什么 AI 生成的内容容易引发版权争议？（多选）", options: ["A. 训练数据可能包含未授权的作品", "B. 生成结果可能过度模仿某位艺术家的风格", "C. 法律对于 AI 作品的版权归属尚存模糊地带", "D. AI 生成速度太慢"], answer: ["A. 训练数据可能包含未授权的作品", "B. 生成结果可能过度模仿某位艺术家的风格", "C. 法律对于 AI 作品的版权归属尚存模糊地带"] },
     { id: 48, module: 3, type: "judge", q: "目前我国法律对 AI 生成内容的版权仍有讨论，不能盲目占有。", options: ["正确", "错误"], answer: "正确" },
     { id: 49, module: 3, type: "single", q: "在使用 AI 引用资料时，必须确保？", options: ["A. 只要好听就行", "B. 资料来源真实且符合引用规范", "C. 全部照抄", "D. 删掉出处"], answer: "B. 资料来源真实且符合引用规范" },
     { id: 50, module: 3, type: "judge", q: "将 AI 生成的作品申请专利，目前在大多数国家是不被支持的。", options: ["正确", "错误"], answer: "正确" },
@@ -178,7 +181,7 @@ const quizData = [
 
     // --- 模块四：社会公正与职业伦理 (61-80题) ---
     { id: 61, module: 4, type: "single", q: "AI 翻译把“护士”默认翻成“她”，反映了 AI 的？", options: ["A. 聪明", "B. 技术偏见或刻板印象", "C. 随机性", "D. 硬件故障"], answer: "B. 技术偏见或刻板印象" },
-    { id: 62, module: 4, type: "single", q: "面对 AI 自动化，中职生最应具备的心态是？", options: ["A. 恐惧拒绝", "B. 学习与 AI 协作", "C. 学什么都没用", "D. 依赖 AI 干活"], answer: "B. 学习与 AI 协作" },
+    { id: 62, module: 4, type: "single", q: "面对 AI 自动化，我们最应具备的心态是？", options: ["A. 恐惧拒绝", "B. 学习与 AI 协作", "C. 学什么都没用", "D. 依赖 AI 干活"], answer: "B. 学习与 AI 协作" },
     { id: 63, module: 4, type: "judge", q: "每个人都有平等获得和使用 AI 技术的权利，这就是数字包容。", options: ["正确", "错误"], answer: "正确" },
     { id: 64, module: 4, type: "multi", q: "AI 偏见可能来源于？（多选）", options: ["A. 训练数据不平衡", "B. 开发者自身偏好", "C. 社会历史原因", "D. AI 电池不足"], answer: ["A. 训练数据不平衡", "B. 开发者自身偏好", "C. 社会历史原因"] },
     { id: 65, module: 4, type: "single", q: "为了减少偏见，开发者在设计 AI 时应？", options: ["A. 只用一种数据", "B. 使用多样、公平的样本", "C. 闭门造车", "D. 不管不顾"], answer: "B. 使用多样、公平的样本" },
@@ -215,12 +218,12 @@ const quizData = [
     { id: 92, module: 5, type: "single", q: "在利用 AI 写作时，如果 AI 跑题了，你应该？", options: ["A. 跟着它跑", "B. 重新调整 Prompt 引导它", "C. 砸电脑", "D. 放弃写作"], answer: "B. 重新调整 Prompt 引导它" },
     { id: 93, module: 5, type: "multi", q: "高素质的 AI 使用者应具备？（多选）", options: ["A. 技术素养", "B. 伦理意识", "C. 法律常识", "D. 偷懒技巧"], answer: ["A. 技术素养", "B. 伦理意识", "C. 法律常识"] },
     { id: 94, module: 5, type: "judge", q: "AI 的发展应遵循“透明度”原则，让用户知道 AI 如何决策。", options: ["正确", "错误"], answer: "正确" },
-    { id: 95, module: 5, type: "single", q: "利用 AI 恶意攻击他人网络系统，这触犯了？", options: ["A. 刑法等相关法律", "B. 班规", "C. 没触法", "D. 礼仪"], answer: "A. 刑法等相关法律" },
+   { id: 95, module: 5, type: "single", q: "某技术人员编写 AI 程序恶意攻击学校服务器，这一行为主要触犯了？", options: ["A. 《网络安全法》等相关法律", "B. 仅仅是校规", "C. 计算机操作规范", "D. 没有任何规定"], answer: "A. 《网络安全法》等相关法律" },
     { id: 96, module: 5, type: "judge", q: "AI 时代的伦理准则也会随着技术发展而不断完善。", options: ["正确", "错误"], answer: "正确" },
-    { id: 97, module: 5, type: "multi", q: "保护“数字遗忘权”意味着你可以？（多选）", options: ["A. 要求 AI 平台删除你的数据", "B. 清除所有上网痕迹", "C. 随意造谣", "D. 保护个人过去的信息不被滥用"], answer: ["A. 要求 AI 平台删除你的数据", "D. 保护个人过去的信息不被滥用"] },
+    { id: 97, module: 5, type: "multi", q: "为了避免陷入 AI 算法推荐的‘信息茧房’（只看到自己喜欢看的信息），我们可以？（多选）", options: ["A. 主动搜索不同观点的资讯", "B. 关注多元化的信息来源", "C. 即使是 AI 推荐的内容也要保持独立思考", "D. 只看短视频不再阅读文字"], answer: ["A. 主动搜索不同观点的资讯", "B. 关注多元化的信息来源", "C. 即使是 AI 推荐的内容也要保持独立思考"] },
     { id: 98, module: 5, type: "single", q: "我们要建设的是“负责任的人工智能”，这需要？", options: ["A. 只有科学家努力", "B. 全社会共同参与监管和自律", "C. AI 自己努力", "D. 顺其自然"], answer: "B. 全社会共同参与监管和自律" },
     { id: 99, module: 5, type: "judge", q: "AI 技术是双刃剑，善恶取决于使用者。", options: ["正确", "错误"], answer: "正确" },
-    { id: 100, module: 5, type: "single", q: "完成这 100 道题后，你觉得 AI 伦理最重要的核心是？", options: ["A. 技术第一", "B. 尊重人类福祉与尊严", "C. 赚钱第一", "D. 没用"], answer: "B. 尊重人类福祉与尊严" }
+    { id: 100, module: 5, type: "single", q: "你认为面对强大的 AI 技术，人类最核心的驾驭之道是？", options: ["A. 追求比 AI 算得更快", "B. 坚持科技向善，用智慧引导技术造福人类", "C. 全面禁止 AI 发展", "D. 盲目顺从 AI 的建议"], answer: "B. 坚持科技向善，用智慧引导技术造福人类" }
 ];
 
 let currentQuestions = [];
@@ -230,6 +233,13 @@ let currentScore = 0; // 当前得分
 let totalAnswered = 0; // 已答题数
 
 function toggleModuleNav() {
+    // 重置状态
+    mode = 'module';  // 设置为分模块模式但还未选择具体模块
+    answers = {};
+    currentScore = 0;
+    totalAnswered = 0;
+    currentQuestions = [];  // 清空题目列表
+
     // 清除所有按钮的选中状态
     document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
 
@@ -242,7 +252,11 @@ function toggleModuleNav() {
     // 清空题目内容（等待用户选择具体模块）
     document.getElementById('quiz-content').innerHTML = '';
     document.getElementById('result-summary').classList.add('hidden');
-    document.getElementById('submit-exam').classList.add('hidden');
+
+    // 关键：强制隐藏提交按钮
+    const submitBtn = document.getElementById('submit-exam');
+    submitBtn.style.display = 'none';  // 使用 style.display 强制隐藏
+    submitBtn.classList.add('hidden');  // 同时添加 hidden 类
 }
 
 function setMode(newMode, modId = null) {
@@ -274,6 +288,10 @@ function setMode(newMode, modId = null) {
         // 高亮选中的模块
         if (modId) {
             document.getElementById(`mod-${modId}`).classList.add('active');
+            // 分模块练习选中具体模块后，显示提交按钮
+            const submitBtn = document.getElementById('submit-exam');
+            submitBtn.style.display = 'block';  // 使用 style.display 强制显示
+            submitBtn.classList.remove('hidden');
         }
     } else if (mode === 'exam') {
         currentQuestions = prepareExam();
@@ -504,12 +522,21 @@ function submitExam() {
             correct = user === q.answer;
         }
 
-        // 计算得分：单选3分，判断3分，多选4分
+        // 根据不同模式计算得分
         if (correct) {
-            if (q.type === 'multi') {
-                score += 4;
-            } else {
-                score += 3;
+            if (mode === 'exam') {
+                // 模拟考试：单选3分，判断3分，多选4分
+                if (q.type === 'multi') {
+                    score += 4;
+                } else {
+                    score += 3;
+                }
+            } else if (mode === 'all') {
+                // 全题库刷题：每题1分
+                score += 1;
+            } else if (mode === 'module') {
+                // 分模块练习：每题5分
+                score += 5;
             }
         }
 
