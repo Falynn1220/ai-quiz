@@ -57,7 +57,25 @@
 
         /* 考试样式 */
         .exam-section-title { background: #edf2f7; padding: 10px; margin: 15px 0; border-left: 5px solid #3498db; font-weight: bold; font-size: 15px; }
-        #submit-exam { display: block; width: 90%; max-width: 220px; margin: 30px auto; padding: 14px; background: #27ae60; color: white; border: none; border-radius: 30px; font-size: 16px; cursor: pointer; min-height: 48px; font-weight: bold; }
+        #submit-exam {
+            display: block;
+            width: 90%;
+            max-width: 220px;
+            margin: 30px auto;
+            padding: 14px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            min-height: 48px;
+            font-weight: bold;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
         #submit-exam:active { background: #229954; }
         #result-summary { background: #2c3e50; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
 
@@ -101,7 +119,7 @@
         <div id="quiz-content"></div>
     </div>
 
-    <button id="submit-exam" class="hidden" onclick="submitExam()">提交试卷查看评分</button>
+    <button id="submit-exam" class="hidden">提交试卷查看评分</button>
 </div>
 
 <script>
@@ -231,6 +249,7 @@ let mode = 'all';
 let answers = {}; // 记录用户选择
 let currentScore = 0; // 当前得分
 let totalAnswered = 0; // 已答题数
+let answeredQuestions = new Set(); // 记录已经答过的题目ID，防止重复计分
 
 function toggleModuleNav() {
     // 重置状态
@@ -238,6 +257,7 @@ function toggleModuleNav() {
     answers = {};
     currentScore = 0;
     totalAnswered = 0;
+    answeredQuestions.clear(); // 清空已答题目记录
     currentQuestions = [];  // 清空题目列表
 
     // 清除所有按钮的选中状态
@@ -264,6 +284,7 @@ function setMode(newMode, modId = null) {
     answers = {}; // 重置答案
     currentScore = 0; // 重置得分
     totalAnswered = 0; // 重置已答题数
+    answeredQuestions.clear(); // 清空已答题目记录
 
     // 清空所有内容（包括得分卡片）
     const quizContent = document.getElementById('quiz-content');
@@ -453,6 +474,9 @@ function showImmediateFeedback(qId) {
         correct = answers[qId] === q.answer;
     }
 
+    // 检查这道题是否已经答过（防止重复计分）
+    const isFirstTime = !answeredQuestions.has(qId);
+
     // 计算本题分值
     let pointsEarned = 0;
     if (correct) {
@@ -464,15 +488,21 @@ function showImmediateFeedback(qId) {
             pointsEarned = 5;
         }
 
-        // 更新总分
-        currentScore += pointsEarned;
-        totalAnswered++;
-
-        // 更新得分显示
-        updateScoreDisplay();
+        // 只在第一次答题时更新分数和已答题数
+        if (isFirstTime) {
+            currentScore += pointsEarned;
+            totalAnswered++;
+            answeredQuestions.add(qId); // 标记为已答
+            // 更新得分显示
+            updateScoreDisplay();
+        }
     } else {
-        totalAnswered++;
-        updateScoreDisplay();
+        // 答错了，只在第一次时增加已答题数
+        if (isFirstTime) {
+            totalAnswered++;
+            answeredQuestions.add(qId); // 标记为已答
+            updateScoreDisplay();
+        }
     }
 
     if (correct) {
@@ -497,12 +527,6 @@ function updateScoreDisplay() {
 }
 
 function submitExam() {
-    // 隐藏实时得分显示（如果存在）
-    const scoreDisplay = document.getElementById('score-display');
-    if (scoreDisplay) {
-        scoreDisplay.style.display = 'none';
-    }
-
     // 检查是否所有题都已作答
     const unanswered = currentQuestions.filter(q => {
         const ans = answers[q.id];
@@ -513,14 +537,32 @@ function submitExam() {
     });
 
     if (unanswered.length > 0) {
-        const confirmSubmit = confirm(`您还有 ${unanswered.length} 道题未作答，确定要提交吗？\n\n未作答的题目将不得分。`);
-        if (!confirmSubmit) {
-            // 如果取消提交，恢复得分显示
-            if (scoreDisplay) {
-                scoreDisplay.style.display = 'block';
+        // 使用 setTimeout 确保 confirm 在正确的上下文中调用（移动端兼容性）
+        setTimeout(() => {
+            const confirmSubmit = confirm(`您还有 ${unanswered.length} 道题未作答，确定要提交吗？\n\n未作答的题目将不得分。`);
+            if (!confirmSubmit) {
+                // 如果取消提交，恢复得分显示
+                const scoreDisplay = document.getElementById('score-display');
+                if (scoreDisplay) {
+                    scoreDisplay.style.display = 'block';
+                }
+                return;
             }
-            return;
-        }
+            // 如果确认提交，继续执行评分逻辑
+            continueSubmit();
+        }, 100);
+        return; // 先返回，等待用户确认
+    }
+
+    // 继续评分
+    continueSubmit();
+}
+
+function continueSubmit() {
+    // 隐藏实时得分显示（如果存在）
+    const scoreDisplay = document.getElementById('score-display');
+    if (scoreDisplay) {
+        scoreDisplay.style.display = 'none';
     }
 
     let score = 0;
@@ -572,7 +614,17 @@ function submitExam() {
 }
 
 // 启动
-window.onload = () => setMode('all');
+window.onload = () => {
+    setMode('all');
+
+    // 为提交按钮添加事件监听器
+    const submitBtn = document.getElementById('submit-exam');
+
+    // 使用 click 事件（移动端和PC端都支持）
+    submitBtn.addEventListener('click', function(e) {
+        submitExam();
+    });
+};
 </script>
 </body>
 </html>
