@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师积分申报系统 - 上海市建筑工程学校</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+const { useState, useMemo } = React;
+
+// ==================== Coze 工作流配置 ====================
+const COZE_CONFIG = {
+  apiUrl: 'https://api.coze.cn/v1/workflow/stream_run',
+  workflowId: '7594279710193139747',
+  token: 'cztei_lriTyXSWUWBmIPmblGzMseeFGfjuZ4nb9Tj9YuiL085gFOSCLItCJEuPGQQrLsNPv'
+};
+
+// 积分标准数据
+const SCORE_DATA = {
+  "专业建设": {
+    "制定或修订专业教学标准（人才培养方案）": {
+      levels: {
+        "国家级": { "负责人": 50, "参与人员": "≤45" },
+        "市级": { "负责人": 30, "参与人员": "≤25" },
+        "校级": { "负责人": 10, "参与人员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    },
+    "制定或修订课程标准": {
+      levels: {
+        "国家级": { "负责人": 50, "参与人员": "≤45" },
+        "市级": { "负责人": 30, "参与人员": "≤25" },
+        "校级": { "负责人": 10, "参与人员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    },
+    "实训实践基地建设（含创新创业示范基地等）": {
+      levels: {
+        "国家级": { "负责人": 50, "参与人员": "≤40" },
+        "市级": { "负责人": 30, "参与人员": "≤20" },
+        "校级": { "负责人": 10, "参与人员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    },
+    "各类教学团队（含技能大师工作室）": {
+      levels: {
+        "国家级": { "负责人": 50, "参与人员": "≤40" },
+        "市级": { "负责人": 30, "参与人员": "≤20" },
+        "校级": { "负责人": 10, "参与人员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    },
+    "其他专业内涵建设相关项目": {
+      levels: {
+        "国家级": { "负责人": 50, "团队成员": "≤40" },
+        "市级": { "负责人": 30, "团队成员": "≤20" },
+        "校级": { "负责人": 10, "团队成员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    }
+  },
+  "教学改革": {
+    "课程建设（含一流课程、在线开放课程等）": {
+      levels: {
+        "国家级": { "负责人": 50, "参与人员": "≤45" },
+        "市级": { "负责人": 30, "参与人员": "≤25" },
+        "校级": { "负责人": 10, "参与人员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    },
+    "教材开发": {
+      levels: {
+        "国家级": { "负责人": 50, "参与人员": "≤40" },
+        "市级": { "负责人": 30, "参与人员": "≤20" },
+        "校级": { "负责人": 10, "参与人员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    },
+    "教师教学能力类比赛": {
+      levels: {
+        "国家级": { "一等奖": 100, "二等奖": 80, "三等奖": 60 },
+        "市级": { "一等奖": 60, "二等奖": 30, "三等奖": 10 },
+        "区级": { "一等奖": 20, "二等奖": 10, "三等奖": 5 }
+      },
+      note: "团队总分"
+    },
+    "教学有关先进荣誉表彰类": {
+      levels: {
+        "国家级": { "获奖": 100 },
+        "市级": { "获奖": 50 },
+        "区级": { "获奖": 20 }
+      }
+    }
+  },
+  "科研": {
+    "教学成果奖": {
+      levels: {
+        "国家级": { "负责人": 100, "参与人员": "≤80" },
+        "市级": { "负责人": 50, "参与人员": "≤40" },
+        "校级": { "负责人": 10, "参与人员": 5 }
+      },
+      maxScore: { "国家级": 200, "市级": 100, "校级": 30 }
+    },
+    "学术论文发表": {
+      levels: {
+        "核心期刊": { "第一作者（通讯作者）": 60, "非第一作者": 40 },
+        "普通期刊": { "第一作者": 20, "非第一作者": 10 },
+        "校级期刊": { "第一作者": 5 }
+      }
+    },
+    "著作": {
+      levels: {
+        "学术专著": { "第一作者": 30, "非第一作者": 20 },
+        "编著、译著": { "第一作者": 20, "非第一作者": 10 }
+      }
+    },
+    "专利等职务知识产权": {
+      levels: {
+        "发明专利": { "第一发明人": 60, "非第一发明人": 50 },
+        "实用新型专利": { "第一发明人": 40, "非第一发明人": 30 },
+        "外观设计专利": { "第一发明人": 20, "非第一发明人": 10 },
+        "软件著作权": { "第一发明人": 20, "非第一发明人": 10 }
+      }
+    },
+    "科研类研究项目": {
+      levels: {
+        "国家级纵向": { "负责人": 100, "团队成员": "≤70" },
+        "市级纵向": { "负责人": 80, "团队成员": "≤50" },
+        "人才类科研项目": { "负责人": 80, "团队成员": "≤70" },
+        "自筹经费的纵向项目": { "负责人": 70, "团队成员": "≤60" },
+        "研究类横向项目": { "负责人": "60+X", "团队成员": "50+X" },
+        "技术类横向项目": { "负责人": "40+X", "团队成员": "30+X" },
+        "校级项目": { "负责人": 10, "团队成员": 5 }
+      },
+      maxScore: { "国家级纵向": 300, "市级纵向": 200, "人才类科研项目": 200, "自筹经费的纵向项目": 200, "校级项目": 30 },
+      note: "横向项目X：每到账1万元计5分"
+    }
+  },
+  "学生竞赛": {
+    "指导学生竞赛获奖": {
+      levels: {
+        "世界技能大赛A类（国家级及以上）": { "一等奖/金牌": 100, "二等奖/银牌": 80, "三等奖/铜牌": 50 },
+        "世界技能大赛A类（省市级选拔赛）": { "一等奖/金牌": 50, "二等奖/银牌": 40, "三等奖/铜牌": 20 },
+        "世界技能大赛B类": { "一等奖/金牌": 80, "二等奖/银牌": 60, "三等奖/铜牌": 40 },
+        "国家级A类": { "一等奖/金牌": 80, "二等奖/银牌": 60, "三等奖/铜牌": 40 },
+        "国家级B类": { "一等奖/金牌": 30, "二等奖/银牌": 20, "三等奖/铜牌": 10 },
+        "国家级C类": { "一等奖/金牌": 15, "二等奖/银牌": 10, "三等奖/铜牌": 5 },
+        "省市级A类": { "一等奖/金牌": 20, "二等奖/银牌": 15, "三等奖/铜牌": 8 },
+        "省市级B类": { "一等奖/金牌": 10, "二等奖/银牌": 8, "三等奖/铜牌": 5 },
+        "省市级C类": { "一等奖/金牌": 6, "二等奖/银牌": 4, "三等奖/铜牌": 2 },
+        "区（校）级A类": { "一等奖/金牌": 6, "二等奖/银牌": 4, "三等奖/铜牌": 2 },
+        "区（校）级B类": { "一等奖/金牌": 5, "二等奖/银牌": 3, "三等奖/铜牌": 1 }
+      }
+    }
+  }
+};
+
+const DEPARTMENTS = [
+  "教务科", "土木教学部", "经管教学部", "环艺教学部", "护理教学部", "实训中心", "其他"
+];
+
+const CATEGORY_COLORS = {
+  "专业建设": { bg: "bg-blue-50", border: "border-blue-200", accent: "bg-blue-500", text: "text-blue-700", light: "bg-blue-100" },
+  "教学改革": { bg: "bg-emerald-50", border: "border-emerald-200", accent: "bg-emerald-500", text: "text-emerald-700", light: "bg-emerald-100" },
+  "科研": { bg: "bg-amber-50", border: "border-amber-200", accent: "bg-amber-500", text: "text-amber-700", light: "bg-amber-100" },
+  "学生竞赛": { bg: "bg-purple-50", border: "border-purple-200", accent: "bg-purple-500", text: "text-purple-700", light: "bg-purple-100" }
+};
+
+function TeacherScoreForm() {
+  const [teacherInfo, setTeacherInfo] = useState({ name: '', department: '' });
+  const [entries, setEntries] = useState([]);
+  const [expandedCategories, setExpandedCategories] = useState({
+    "专业建设": true, "教学改革": false, "科研": false, "学生竞赛": false
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const addEntry = (category, indicator) => {
+    const newEntry = {
+      id: Date.now(),
+      category,
+      indicator,
+      level: '',
+      role: '',
+      projectName: '',
+      standardScore: '',
+      appliedScore: ''
+    };
+    setEntries([...entries, newEntry]);
+  };
+
+  const updateEntry = (id, field, value) => {
+    setEntries(entries.map(entry => {
+      if (entry.id !== id) return entry;
+      const updated = { ...entry, [field]: value };
+
+      if (field === 'level' || field === 'role') {
+        const data = SCORE_DATA[entry.category]?.[entry.indicator];
+        if (data && updated.level && updated.role) {
+          const score = data.levels[updated.level]?.[updated.role];
+          updated.standardScore = score || '';
+        }
+      }
+      return updated;
+    }));
+  };
+
+  const removeEntry = (id) => {
+    setEntries(entries.filter(entry => entry.id !== id));
+  };
+
+  const totalScore = useMemo(() => {
+    return entries.reduce((sum, entry) => {
+      const score = parseFloat(entry.appliedScore) || 0;
+      return sum + score;
+    }, 0);
+  }, [entries]);
+
+  const categoryScores = useMemo(() => {
+    const scores = {};
+    Object.keys(SCORE_DATA).forEach(cat => scores[cat] = 0);
+    entries.forEach(entry => {
+      scores[entry.category] = (scores[entry.category] || 0) + (parseFloat(entry.appliedScore) || 0);
+    });
+    return scores;
+  }, [entries]);
+
+  const validateForm = () => {
+    if (!teacherInfo.name.trim()) {
+      alert('请填写姓名');
+      return false;
+    }
+    if (!teacherInfo.department) {
+      alert('请选择部门');
+      return false;
+    }
+    if (entries.length === 0) {
+      alert('请至少添加一个申报项目');
+      return false;
+    }
+    for (const entry of entries) {
+      if (!entry.level || !entry.role || !entry.projectName || !entry.appliedScore) {
+        alert(`请完善项目"${entry.indicator}"的所有必填信息`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const submitToCoze = async () => {
+    if (!validateForm()) return;
+
+    setSubmitting(true);
+    setSubmitStatus(null);
+    setSubmitMessage('');
+
+    const workflowParams = {
+      teacherName: teacherInfo.name,
+      department: teacherInfo.department,
+      entries: entries.map(entry => ({
+        category: entry.category,
+        indicator: entry.indicator,
+        level: entry.level,
+        role: entry.role,
+        projectName: entry.projectName,
+        standardScore: String(entry.standardScore),
+        appliedScore: String(entry.appliedScore)
+      }))
+    };
+
+    try {
+      const response = await fetch(COZE_CONFIG.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${COZE_CONFIG.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          workflow_id: COZE_CONFIG.workflowId,
+          parameters: workflowParams
+        })
+      });
+
+      const text = await response.text();
+      console.log('Coze响应:', text);
+
+      if (text.includes('event: Done') || text.includes('"node_is_finish":true')) {
+        setSubmitStatus('success');
+        setSubmitMessage(`成功提交 ${entries.length} 条申报记录！`);
+      } else if (text.includes('"code":0') || response.ok) {
+        setSubmitStatus('success');
+        setSubmitMessage(`成功提交 ${entries.length} 条申报记录！`);
+      } else {
+        throw new Error(text);
+      }
+    } catch (error) {
+      console.error('提交错误:', error);
+      setSubmitStatus('error');
+      setSubmitMessage(`提交失败: ${error.message}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const exportToExcel = () => {
+    let csv = '\uFEFF';
+    csv += '上海市建筑工程学校教师教学能力考核（效果标准）积分申报表\n\n';
+    csv += `部门：,${teacherInfo.department},,姓名：,${teacherInfo.name}\n\n`;
+    csv += '序号,大类,指标,项目名称,级别,角色/奖项,积分标准,申报积分\n';
+
+    entries.forEach((entry, idx) => {
+      csv += `${idx + 1},${entry.category},${entry.indicator},"${entry.projectName}",${entry.level},${entry.role},${entry.standardScore},${entry.appliedScore}\n`;
+    });
+
+    csv += `\n合计申报积分,,,,,,,${totalScore}\n`;
+    csv += `\n各类小计：\n`;
+    Object.entries(categoryScores).forEach(([cat, score]) => {
+      csv += `${cat},${score}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `积分申报_${teacherInfo.name || '未命名'}_${new Date().toLocaleDateString()}.csv`;
+    link.click();
+  };
+
+  const toggleCategory = (category) => {
+    setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-5xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-slate-800">教师教学能力考核积分申报</h1>
+              <p className="text-sm text-slate-500 mt-0.5">上海市建筑工程学校 · 2024年度</p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-indigo-600">{totalScore}</div>
+              <div className="text-xs text-slate-500">总申报积分</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {submitStatus && (
+        <div className="max-w-5xl mx-auto px-4 mt-4">
+          <div className={`p-4 rounded-xl flex items-center gap-3 ${
+            submitStatus === 'success'
+              ? 'bg-green-50 border border-green-200 text-green-700'
+              : 'bg-red-50 border border-red-200 text-red-700'
+          }`}>
+            {submitStatus === 'success' ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            <span className="font-medium">{submitMessage}</span>
+            <button
+              onClick={() => setSubmitStatus(null)}
+              className="ml-auto p-1 hover:bg-white/50 rounded"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            基本信息
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-1">姓名 <span className="text-red-400">*</span></label>
+              <input
+                type="text"
+                value={teacherInfo.name}
+                onChange={(e) => setTeacherInfo({ ...teacherInfo, name: e.target.value })}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                placeholder="请输入姓名"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-1">部门 <span className="text-red-400">*</span></label>
+              <select
+                value={teacherInfo.department}
+                onChange={(e) => setTeacherInfo({ ...teacherInfo, department: e.target.value })}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-white"
+              >
+                <option value="">请选择部门</option>
+                {DEPARTMENTS.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {Object.entries(categoryScores).map(([cat, score]) => {
+            const colors = CATEGORY_COLORS[cat];
+            return (
+              <div key={cat} className={`${colors.bg} ${colors.border} border rounded-xl p-3 text-center`}>
+                <div className={`text-lg font-bold ${colors.text}`}>{score}</div>
+                <div className="text-xs text-slate-500">{cat}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {Object.entries(SCORE_DATA).map(([category, indicators]) => {
+          const colors = CATEGORY_COLORS[category];
+          const isExpanded = expandedCategories[category];
+          const categoryEntryCount = entries.filter(e => e.category === category).length;
+
+          return (
+            <div key={category} className={`mb-4 rounded-2xl border ${colors.border} overflow-hidden bg-white shadow-sm`}>
+              <button
+                onClick={() => toggleCategory(category)}
+                className={`w-full px-4 py-3 flex items-center justify-between ${colors.bg} hover:opacity-90 transition-opacity`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-1 h-8 ${colors.accent} rounded-full`}></div>
+                  <span className="font-semibold text-slate-800">{category}</span>
+                  {categoryEntryCount > 0 && (
+                    <span className={`px-2 py-0.5 ${colors.light} ${colors.text} text-xs font-medium rounded-full`}>
+                      {categoryEntryCount} 项
+                    </span>
+                  )}
+                </div>
+                <svg className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isExpanded && (
+                <div className="p-4 space-y-4">
+                  {Object.entries(indicators).map(([indicator, data]) => {
+                    const indicatorEntries = entries.filter(e => e.category === category && e.indicator === indicator);
+
+                    return (
+                      <div key={indicator} className={`border ${colors.border} rounded-xl overflow-hidden`}>
+                        <div className={`px-4 py-2.5 ${colors.light} flex items-center justify-between`}>
+                          <span className="text-sm font-medium text-slate-700">{indicator}</span>
+                          <button
+                            onClick={() => addEntry(category, indicator)}
+                            className={`px-3 py-1 ${colors.accent} text-white text-xs font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            添加项目
+                          </button>
+                        </div>
+
+                        {indicatorEntries.length > 0 && (
+                          <div className="divide-y divide-slate-100">
+                            {indicatorEntries.map((entry, idx) => (
+                              <div key={entry.id} className="p-4 bg-white">
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-6 h-6 ${colors.light} ${colors.text} rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-1`}>
+                                    {idx + 1}
+                                  </div>
+                                  <div className="flex-1 space-y-3">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                      <div>
+                                        <label className="block text-xs text-slate-500 mb-1">级别 <span className="text-red-400">*</span></label>
+                                        <select
+                                          value={entry.level}
+                                          onChange={(e) => updateEntry(entry.id, 'level', e.target.value)}
+                                          className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                                        >
+                                          <option value="">请选择</option>
+                                          {Object.keys(data.levels).map(level => (
+                                            <option key={level} value={level}>{level}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs text-slate-500 mb-1">角色/奖项 <span className="text-red-400">*</span></label>
+                                        <select
+                                          value={entry.role}
+                                          onChange={(e) => updateEntry(entry.id, 'role', e.target.value)}
+                                          className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                                          disabled={!entry.level}
+                                        >
+                                          <option value="">请选择</option>
+                                          {entry.level && data.levels[entry.level] &&
+                                            Object.keys(data.levels[entry.level]).map(role => (
+                                              <option key={role} value={role}>{role}</option>
+                                            ))
+                                          }
+                                        </select>
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs text-slate-500 mb-1">项目名称 <span className="text-red-400">*</span></label>
+                                        <input
+                                          type="text"
+                                          value={entry.projectName}
+                                          onChange={(e) => updateEntry(entry.id, 'projectName', e.target.value)}
+                                          className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                          placeholder="填写项目名称"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs text-slate-500 mb-1">积分标准</label>
+                                        <div className="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm text-slate-600">
+                                          {entry.standardScore || '-'}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="block text-xs text-slate-500 mb-1">申报积分 <span className="text-red-400">*</span></label>
+                                        <input
+                                          type="number"
+                                          value={entry.appliedScore}
+                                          onChange={(e) => updateEntry(entry.id, 'appliedScore', e.target.value)}
+                                          className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                          placeholder="填写积分"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => removeEntry(entry.id)}
+                                    className="mt-1 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                    title="删除此项目"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {indicatorEntries.length === 0 && (
+                          <div className="p-4 text-center text-sm text-slate-400">
+                            点击"添加项目"按钮开始申报
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <div className="flex gap-2">
+            <svg className="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-sm text-amber-800">
+              <p className="font-medium mb-1">填写说明：</p>
+              <ol className="list-decimal list-inside space-y-0.5 text-amber-700">
+                <li>申报项目的佐证资料落款时间必须为2024年度</li>
+                <li>如遇表格未涵盖信息，请在"其他"项中填写，后续将组织专门讨论予以赋分</li>
+                <li>申报积分不得超过积分标准上限</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-center gap-4">
+          <button
+            onClick={exportToExcel}
+            className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors flex items-center gap-2 font-medium"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            导出Excel
+          </button>
+          <button
+            onClick={submitToCoze}
+            disabled={submitting}
+            className="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium shadow-lg disabled:opacity-50"
+          >
+            {submitting ? (
+              <>
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                提交中...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                提交到飞书
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<TeacherScoreForm />);
+    </script>
+</body>
+</html>
